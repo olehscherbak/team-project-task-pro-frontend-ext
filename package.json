@@ -1,7 +1,8 @@
 {
-  "name": "team-project-task-pro-frontend",
+  "name": "team-project-task-pro-frontend-ext",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://olehscherbak.github.io/team-project-task-pro-frontend-ext/",
   "type": "module",
   "scripts": {
     "start": "npm run dev -- --open",
