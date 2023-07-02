@@ -2,7 +2,8 @@ import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import handleAuthError from '../../authError/authError';
 
-axios.defaults.baseURL = 'https://task-pro-app.onrender.com/api/';
+// axios.defaults.baseURL = 'https://task-pro-app-ext.onrender.com/api/';
+axios.defaults.baseURL = 'http://localhost:5000/api/';
 
 const setAuth = (token) => {
   axios.defaults.headers.common.Authorization = `Bearer ${token}`;

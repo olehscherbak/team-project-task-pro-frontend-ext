@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+
 import { openModal } from '../../redux/modal/modalSlice';
 import {
   useGetFetchBoardByIdQuery,
@@ -87,15 +90,27 @@ const ScreenPage = () => {
     } else setFilteredTasks(value);
   };
 
+  const getColumnInfo = (id) => {
+    const currentColumn = data.columns.find((col) => col._id === id);
+    return currentColumn;
+  };
+
+  const getTaskInfo = (id) => {
+    const task = filteredTasks.find((task) => task._id === id);
+    return task;
+  };
+
+  const onDragEnd = () => {};
+
   return (
-    <>
+    <DragDropContext onDragEnd={onDragEnd}>
       {data?.columns &&
-        data.columns.map(({ _id, title }) => (
+        data.columnsIds.map((_id) => (
           <BoxColumns key={_id}>
             <BoxColumnsTitle>
-              <Subject>{title}</Subject>
+              <Subject>{getColumnInfo(_id).title}</Subject>
               <BtnIcon
-                onClick={() => handleEditColumn(_id, title)}
+                onClick={() => handleEditColumn(_id, getColumnInfo(_id).title)}
                 type="button"
               >
                 <IconStyled width="16" height="16">
@@ -117,19 +132,30 @@ const ScreenPage = () => {
               </BtnIcon>
             </BoxColumnsTitle>
 
-            <ListTask>
-              {filteredTasks &&
-                filteredTasks.map(
-                  (task) =>
-                    task.column === _id && (
-                      <TaskCard
-                        task={task}
-                        columns={data.columns}
-                        key={task._id}
-                      />
-                    )
-                )}
-            </ListTask>
+            <Droppable droppableId={_id}>
+              {(provided) => {
+                <ListTask
+                  innerRef={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {filteredTasks &&
+                    // filteredTasks.map(
+                    getColumnInfo(_id).tasksIds.map(
+                      (taskId, index) =>
+                        getTaskInfo(taskId) && (
+                          <TaskCard
+                            task={getTaskInfo(taskId)}
+                            columns={data.columns}
+                            key={getTaskInfo(taskId)._id}
+                            index={index}
+                          />
+                        )
+                    )}
+                  {provided.placeholder}
+                </ListTask>;
+              }}
+            </Droppable>
+
             <AddCardBtn onClick={() => handleClickModal(_id)}>
               <AddCardIcon width="28" height="28">
                 <svg width="18" height="18">
@@ -140,7 +166,7 @@ const ScreenPage = () => {
             </AddCardBtn>
           </BoxColumns>
         ))}
-    </>
+    </DragDropContext>
   );
 };
 
