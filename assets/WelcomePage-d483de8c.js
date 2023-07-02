@@ -1,4 +1,4 @@
-import{s as t,N as n,j as e,u as o}from"./index-18d6c409.js";const a=t.section`
+import{s as t,N as n,j as e,u as o}from"./index-510fea52.js";const a=t.section`
   display: flex;
   flex-direction: column;
   justify-content: center;
