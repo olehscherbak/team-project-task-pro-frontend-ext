@@ -26,7 +26,6 @@ const ProgressDoneModal = ({ componentName }) => {
     const value = {
       columnStart: currentColumnId,
       columnFinish: columnIdMoveTo,
-      indexFinish: null,
     };
     try {
       await moveTask({ values: value, idTask: currentTaskId });

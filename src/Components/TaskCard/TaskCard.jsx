@@ -87,11 +87,11 @@ const TaskCard = ({ task, columns, index }) => {
 
   return (
     <Draggable draggableId={task._id} index={index}>
-      {(provided) => {
+      {(provided) => (
         <li
-          innerRef={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+          ref={provided.innerRef}
         >
           <CardBg style={{ backgroundColor: `${colorSwitch(task.priority)}` }}>
             <Card>
@@ -185,8 +185,8 @@ const TaskCard = ({ task, columns, index }) => {
               </CardBottom>
             </Card>
           </CardBg>
-        </li>;
-      }}
+        </li>
+      )}
     </Draggable>
   );
 };
