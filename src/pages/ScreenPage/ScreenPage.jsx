@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { useMoveTaskMutation } from '../../redux/boardApi/boardApi';
 
@@ -22,6 +22,8 @@ import {
   BtnIcon,
   ListTask,
   AddCardIcon,
+  Container,
+  ColumnContainer,
 } from './ScreenPage.styled';
 import url from '../../images/icons/sprite/icons.svg';
 import { LoaderForDeleted } from '../../Components/Loader/LoaderDeleted/LoaderDeleted';
@@ -103,7 +105,7 @@ const ScreenPage = () => {
     return task;
   };
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
     if (!destination) {
       return;
@@ -114,76 +116,108 @@ const ScreenPage = () => {
     ) {
       return;
     }
+
+    const value = {
+      columnStart: source.droppableId,
+      columnFinish: destination.droppableId,
+      indexFinish: destination.index,
+    };
+
+    try {
+      await moveTask({ values: value, idTask: draggableId });
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  // const scrinPageId = 'all-columns';
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <>
-        {data?.columns &&
-          data.columnsIds.map((_id) => (
-            <BoxColumns key={_id}>
-              <BoxColumnsTitle>
-                <Subject>{getColumnInfo(_id).title}</Subject>
-                <BtnIcon
-                  onClick={() =>
-                    handleEditColumn(_id, getColumnInfo(_id).title)
-                  }
-                  type="button"
-                >
-                  <IconStyled width="16" height="16">
-                    <use xlinkHref={`${url}#icon-pencil-01`} />
-                  </IconStyled>
-                </BtnIcon>
-                <BtnIcon
-                  onClick={() => handleDeleteColumn(_id)}
-                  type="button"
-                  disabled={isDeletedLoad[_id]}
-                >
-                  {isDeletedLoad[_id] ? (
-                    <LoaderForDeleted />
-                  ) : (
-                    <IconStyled width="16" height="16">
-                      <use xlinkHref={`${url}#icon-trash-04`} />
-                    </IconStyled>
-                  )}
-                </BtnIcon>
-              </BoxColumnsTitle>
+      <Droppable droppableId="my_columns" direction="horizontal" type="column">
+        {(provided) => (
+          <Container
+            id="my_columns"
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            {data?.columns &&
+              data.columnsIds.map((_id, index) => (
+                <BoxColumns key={_id}>
+                  <Draggable draggableId={_id} index={index}>
+                    {(provided) => (
+                      <ColumnContainer
+                        {...provided.draggableProps}
+                        ref={provided.innerRef}
+                      >
+                        <BoxColumnsTitle {...provided.dragHandleProps}>
+                          <Subject>{getColumnInfo(_id).title}</Subject>
+                          <BtnIcon
+                            onClick={() =>
+                              handleEditColumn(_id, getColumnInfo(_id).title)
+                            }
+                            type="button"
+                          >
+                            <IconStyled width="16" height="16">
+                              <use xlinkHref={`${url}#icon-pencil-01`} />
+                            </IconStyled>
+                          </BtnIcon>
+                          <BtnIcon
+                            onClick={() => handleDeleteColumn(_id)}
+                            type="button"
+                            disabled={isDeletedLoad[_id]}
+                          >
+                            {isDeletedLoad[_id] ? (
+                              <LoaderForDeleted />
+                            ) : (
+                              <IconStyled width="16" height="16">
+                                <use xlinkHref={`${url}#icon-trash-04`} />
+                              </IconStyled>
+                            )}
+                          </BtnIcon>
+                        </BoxColumnsTitle>
 
-              <Droppable droppableId={_id}>
-                {(provided) => (
-                  <ListTask
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    {filteredTasks &&
-                      // filteredTasks.map(
-                      getColumnInfo(_id).tasksIds.map(
-                        (taskId, index) =>
-                          getTaskInfo(taskId) && (
-                            <TaskCard
-                              task={getTaskInfo(taskId)}
-                              columns={data.columns}
-                              key={getTaskInfo(taskId)._id}
-                              index={index}
-                            />
-                          )
-                      )}
-                    {provided.placeholder}
-                  </ListTask>
-                )}
-              </Droppable>
+                        <Droppable droppableId={_id} type="task">
+                          {(provided) => (
+                            <ListTask
+                              ref={provided.innerRef}
+                              {...provided.droppableProps}
+                            >
+                              {filteredTasks &&
+                                // filteredTasks.map(
+                                getColumnInfo(_id).tasksIds.map(
+                                  (taskId, index) =>
+                                    getTaskInfo(taskId) && (
+                                      <TaskCard
+                                        task={getTaskInfo(taskId)}
+                                        columns={data.columns}
+                                        key={getTaskInfo(taskId)._id}
+                                        index={index}
+                                      />
+                                    )
+                                )}
+                              {provided.placeholder}
+                            </ListTask>
+                          )}
+                        </Droppable>
 
-              <AddCardBtn onClick={() => handleClickModal(_id)}>
-                <AddCardIcon width="28" height="28">
-                  <svg width="18" height="18">
-                    <use xlinkHref={`${url}#icon-plus`} />
-                  </svg>
-                </AddCardIcon>
-                Add another card
-              </AddCardBtn>
-            </BoxColumns>
-          ))}
-      </>
+                        <AddCardBtn onClick={() => handleClickModal(_id)}>
+                          <AddCardIcon width="28" height="28">
+                            <svg width="18" height="18">
+                              <use xlinkHref={`${url}#icon-plus`} />
+                            </svg>
+                          </AddCardIcon>
+                          Add another card
+                        </AddCardBtn>
+                      </ColumnContainer>
+                    )}
+                  </Draggable>
+                </BoxColumns>
+              ))}
+            {provided.placeholder}
+          </Container>
+        )}
+      </Droppable>
     </DragDropContext>
   );
 };

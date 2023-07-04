@@ -66,6 +66,14 @@ export const boardsApi = createApi({
       }),
       invalidatesTags: ['BoardsId', 'Columns'],
     }),
+    moveColumn: builder.mutation({
+      query: ({ values, id }) => ({
+        url: `/column/move/${id}`,
+        method: 'PATCH',
+        body: values,
+      }),
+      invalidatesTags: ['BoardsId', 'Columns'],
+    }),
     deleteColumn: builder.mutation({
       query: (id) => ({
         url: `/column/${id}`,

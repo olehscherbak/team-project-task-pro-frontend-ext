@@ -125,3 +125,9 @@ export const BtnIcon = styled.button`
     }
   }
 `;
+
+export const Container = styled.div`
+  display: flex;
+`;
+
+export const ColumnContainer = styled.div``;
